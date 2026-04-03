@@ -3,3 +3,36 @@
 .dolt/
 *.db
 .beads-credential-key
+
+# Secrets
+secrets/age.key
+secrets/*.key
+!secrets/.gitignore
+
+# OpenTofu
+.toftmp
+.toftmp.*
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Fnox
+.fnox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scripts
+scripts/*.log
+
+.sisyphus
