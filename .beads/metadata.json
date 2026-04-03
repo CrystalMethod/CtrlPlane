@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "CtrlPlane",
+  "project_id": "bb4871d8-46a6-4981-be4d-1cc833bd8bfd"
+}
