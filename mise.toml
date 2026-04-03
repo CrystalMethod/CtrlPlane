@@ -1,0 +1,30 @@
+[tools]
+"npm:wrangler" = "4.38.0"
+fnox = "latest"
+infisical = "latest"
+lefthook = "latest"
+opentofu = "latest"
+tflint = "latest"
+
+[shell_alias]
+tofu = "fnox exec -- tofu"
+
+[tasks.init]
+description = "Initialize the OpenTofu project"
+dir = "{{cwd}}/terraform"
+run = "tofu init"
+
+[tasks.plan]
+description = "Plan the changes to resources"
+dir = "{{cwd}}/terraform"
+run = "tofu plan"
+
+[tasks.apply]
+description = "Apply changes to resources"
+dir = "{{cwd}}/terraform"
+run = "tofu apply"
+
+[tasks.lint]
+description = "Lint OpenTofu configuration"
+dir = "{{cwd}}/terraform"
+run = "tflint --recursive"
