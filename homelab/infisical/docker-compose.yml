@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  backend:
+    image: infisical/infisical:v0.159.1
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - DB_CONNECTION_URI=postgres://infisical:${DB_PASSWORD}@postgres:5432/infisical
+      - REDIS_URL=redis://redis:6379
+      - SITE_URL=${SITE_URL}
+      - CLIENT_ID_GOOGLE_LOGIN=${CLIENT_ID_GOOGLE_LOGIN}
+      - CLIENT_SECRET_GOOGLE_LOGIN=${CLIENT_SECRET_GOOGLE_LOGIN}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM_ADDRESS=${SMTP_FROM_ADDRESS}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME}
+      - TELEMETRY_ENABLED=false
+    volumes:
+      - infisical-data:/app/data
+
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=infisical
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=infisical
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infisical"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  infisical-data:
+  postgres-data:
+  redis-data:
