@@ -6,11 +6,13 @@ on:
     paths:
       - 'tofu/**'
       - '.github/workflows/infrastructure.yml'
+      - 'mise.toml'
   pull_request:
     branches: [main]
     paths:
       - 'tofu/**'
       - '.github/workflows/infrastructure.yml'
+      - 'mise.toml'
 
 permissions:
   contents: read
@@ -23,48 +25,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Fnox
-        run: |
-          curl -fsSL https://github.com/semnox/fnox/releases/latest/download/fnox-linux-amd64 -o /usr/local/bin/fnox
-          chmod +x /usr/local/bin/fnox
+      - name: Install mise
+        uses: jdx/mise-action@v2
 
-      - name: Install OpenTofu
-        uses: opentofu/setup-opentofu@v1
-        with:
-          tofu_version: latest
-
-      - name: Setup Fnox Age key
-        run: |
-          echo "$FNOX_AGE_KEY" > /tmp/age.key
-          chmod 600 /tmp/age.key
-          export FNOX_AGE_KEY_PATH=/tmp/age.key
-        env:
-          FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
-
-      - name: Fnox Init
-        run: fnox exec -- fnox init
-        env:
-          FNOX_AGE_KEY_PATH: /tmp/age.key
+      - name: Install tools
+        run: mise install
 
       - name: Tofu Init (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra init -backend=false -input=false
-        env:
-          FNOX_AGE_KEY_PATH: /tmp/age.key
 
       - name: Tofu Plan (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra plan -input=false
-        env:
-          FNOX_AGE_KEY_PATH: /tmp/age.key
 
-      - name: Tofu-Init (Platform)
+      - name: Tofu Init (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform init -backend=false -input=false
-        env:
-          FNOX_AGE_KEY_PATH: /tmp/age.key
 
       - name: Tofu Plan (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform plan -input=false -var="DOKPLOY_HOST=https://placeholder" || true
-        env:
-          FNOX_AGE_KEY_PATH: /tmp/age.key
+        run: fnox exec -- tofu -chdir=tofu/01-platform plan -input=false || true
 
   apply:
     name: OpenTofu Apply
@@ -75,29 +52,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Fnox
-        run: |
-          curl -fsSL https://github.com/semnox/fnox/releases/latest/download/fnox-linux-amd64 -o /usr/local/bin/fnox
-          chmod +x /usr/local/bin/fnox
+      - name: Install mise
+        uses: jdx/mise-action@v2
 
-      - name: Install OpenTofu
-        uses: opentofu/setup-opentofu@v1
-        with:
-          tofu_version: latest
-
-      - name: Setup Fnox Age key
-        run: |
-          echo "$FNOX_AGE_KEY" > /tmp/age.key
-          chmod 600 /tmp/age.key
-        env:
-          FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
+      - name: Install tools
+        run: mise install
 
       - name: Tofu Apply (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra apply -input=false -auto-approve
-        env:
-          FNOX_AGE_KEY_PATH: /tmp/age.key
 
       - name: Tofu Apply (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform apply -input=false -auto-approve || true
-        env:
-          FNOX_AGE_KEY_PATH: /tmp/age.key
