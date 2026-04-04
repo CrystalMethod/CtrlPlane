@@ -22,6 +22,8 @@ jobs:
   plan:
     name: OpenTofu Plan
     runs-on: ubuntu-latest
+    env:
+      FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,13 +34,13 @@ jobs:
         run: mise install
 
       - name: Tofu Init (Infra)
-        run: fnox exec -- tofu -chdir=tofu/00-infra init -backend=false -input=false
+        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
 
       - name: Tofu Plan (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra plan -input=false
 
       - name: Tofu Init (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform init -backend=false -input=false
+        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
 
       - name: Tofu Plan (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform plan -input=false || true
@@ -49,6 +51,8 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: production
+    env:
+      FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -58,8 +62,14 @@ jobs:
       - name: Install tools
         run: mise install
 
+      - name: Tofu Init (Infra)
+        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
+
       - name: Tofu Apply (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra apply -input=false -auto-approve
+
+      - name: Tofu Init (Platform)
+        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
 
       - name: Tofu Apply (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform apply -input=false -auto-approve || true
