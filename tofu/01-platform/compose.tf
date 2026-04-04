@@ -47,7 +47,7 @@ resource "dokploy_compose" "infisical" {
   owner                       = "CrystalMethod"
   repository                  = "CtrlPlane"
   branch                      = "main"
-  compose_path                = "homelab/infisical/docker-compose.yml"
+  compose_path                = "compose/platform/infisical/docker-compose.yml"
   auto_deploy                 = true
   isolated_deployment         = true
   isolated_deployments_volume = true
