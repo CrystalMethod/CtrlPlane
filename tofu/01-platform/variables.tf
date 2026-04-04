@@ -76,3 +76,17 @@ variable "INFISICAL_SMTP_FROM_ADDRESS" {
 variable "INFISICAL_SMTP_FROM_NAME" {
   type = string
 }
+
+# Infisical bootstrap variables
+variable "INFISICAL_ADMIN_EMAIL" {
+  type = string
+}
+
+variable "INFISICAL_ADMIN_PASSWORD" {
+  type      = string
+  sensitive = true
+}
+
+variable "INFISICAL_ADMIN_ORGANIZATION" {
+  type = string
+}

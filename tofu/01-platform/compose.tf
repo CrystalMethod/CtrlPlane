@@ -18,6 +18,16 @@ locals {
   ])
 }
 
+data "external" "infisical_bootstrap" {
+  program = ["bash", "${path.module}/../../scripts/infisical-bootstrap.sh"]
+  query = {
+    domain       = var.INFISICAL_SITE_URL
+    email        = var.INFISICAL_ADMIN_EMAIL
+    password     = var.INFISICAL_ADMIN_PASSWORD
+    organization = var.INFISICAL_ADMIN_ORGANIZATION
+  }
+}
+
 resource "dokploy_compose" "infisical" {
   name                        = "infisical"
   environment_id              = dokploy_environment.secrets_production.id
