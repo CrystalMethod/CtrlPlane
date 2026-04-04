@@ -19,7 +19,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: tofu-state
   cancel-in-progress: false
 
 jobs:
