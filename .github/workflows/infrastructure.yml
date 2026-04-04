@@ -18,9 +18,51 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
+  fmt:
+    name: OpenTofu Format
+    runs-on: ubuntu-latest
+    env:
+      FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - name: Install tools
+        run: mise install
+
+      - name: Check formatting
+        run: fnox exec -- tofu fmt -check -recursive
+
+  validate:
+    name: OpenTofu Validate
+    runs-on: ubuntu-latest
+    env:
+      FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - name: Install tools
+        run: mise install
+
+      - name: Tofu Validate (Infra)
+        run: fnox exec -- tofu -chdir=tofu/00-infra validate
+
+      - name: Tofu Validate (Platform)
+        run: fnox exec -- tofu -chdir=tofu/01-platform validate
+
   plan:
     name: OpenTofu Plan
+    needs: [fmt, validate]
     runs-on: ubuntu-latest
     env:
       FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
@@ -37,13 +79,27 @@ jobs:
         run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
 
       - name: Tofu Plan (Infra)
-        run: fnox exec -- tofu -chdir=tofu/00-infra plan -input=false
+        run: fnox exec -- tofu -chdir=tofu/00-infra plan -input=false -out=tfplan
+
+      - name: Upload Infra Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-infra
+          path: tofu/00-infra/tfplan
+          retention-days: 5
 
       - name: Tofu Init (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
 
       - name: Tofu Plan (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform plan -input=false || true
+        run: fnox exec -- tofu -chdir=tofu/01-platform plan -input=false -out=tfplan
+
+      - name: Upload Platform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-platform
+          path: tofu/01-platform/tfplan
+          retention-days: 5
 
   apply:
     name: OpenTofu Apply
@@ -62,14 +118,26 @@ jobs:
       - name: Install tools
         run: mise install
 
+      - name: Download Infra Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-infra
+          path: tofu/00-infra
+
       - name: Tofu Init (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
 
       - name: Tofu Apply (Infra)
-        run: fnox exec -- tofu -chdir=tofu/00-infra apply -input=false -auto-approve
+        run: fnox exec -- tofu -chdir=tofu/00-infra apply -input=false tfplan
+
+      - name: Download Platform Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-platform
+          path: tofu/01-platform
 
       - name: Tofu Init (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
 
       - name: Tofu Apply (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform apply -input=false -auto-approve || true
+        run: fnox exec -- tofu -chdir=tofu/01-platform apply -input=false tfplan
