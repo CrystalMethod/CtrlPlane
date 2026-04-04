@@ -42,10 +42,6 @@ variable "INFISICAL_DOMAIN" {
   type = string
 }
 
-variable "INFISICAL_DOMAIN_BASE" {
-  type = string
-}
-
 variable "INFISICAL_CLIENT_ID_GOOGLE_LOGIN" {
   type      = string
   sensitive = true
