@@ -1,0 +1,80 @@
+name: Promotion PR
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tofu/**'
+      - 'compose/**'
+      - '.github/workflows/infrastructure.yml'
+      - 'mise.toml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: promotion-pr
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Create Promotion PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if prod is behind main
+        id: check
+        run: |
+          git fetch origin main prod
+          if git merge-base --is-ancestor origin/prod origin/main; then
+            echo "prod is behind main"
+            echo "needs_promotion=true" >> $GITHUB_OUTPUT
+          else
+            echo "prod is up to date"
+            echo "needs_promotion=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing promotion PR
+        if: steps.check.outputs.needs_promotion == 'true'
+        id: existing
+        run: |
+          pr_number=$(gh pr list --base prod --head main --state open --json number --jq '.[0].number')
+          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Create Promotion PR
+        if: steps.check.outputs.needs_promotion == 'true' && steps.existing.outputs.pr_number == ''
+        run: |
+          gh pr create \
+            --base prod \
+            --head main \
+            --title "chore: promote staging to production" \
+            --label "promote-to-prod" \
+            --body "## Changes being promoted
+
+          $(git log origin/prod..origin/main --oneline --no-merges | sed 's/^/- /')
+
+          ## Checklist
+          - [ ] Staging has been tested at https://infisical-dev.smb-tec.com
+          - [ ] All changes reviewed and approved"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Update existing Promotion PR
+        if: steps.check.outputs.needs_promotion == 'true' && steps.existing.outputs.pr_number != ''
+        run: |
+          gh pr edit ${{ steps.existing.outputs.pr_number }} \
+            --body "## Changes being promoted
+
+          $(git log origin/prod..origin/main --oneline --no-merges | sed 's/^/- /')
+
+          ## Checklist
+          - [ ] Staging has been tested at https://infisical-dev.smb-tec.com
+          - [ ] All changes reviewed and approved"
+        env:
+          GH_TOKEN: ${{ github.token }}
