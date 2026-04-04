@@ -38,7 +38,7 @@ variable "INFISICAL_DB_PASSWORD" {
   sensitive = true
 }
 
-variable "INFISICAL_SITE_URL" {
+variable "INFISICAL_DOMAIN" {
   type = string
 }
 
