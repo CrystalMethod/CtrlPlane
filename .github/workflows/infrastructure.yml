@@ -5,12 +5,14 @@ on:
     branches: [main, prod]
     paths:
       - 'tofu/**'
+      - 'compose/**'
       - '.github/workflows/infrastructure.yml'
       - 'mise.toml'
   pull_request:
     branches: [main, prod]
     paths:
       - 'tofu/**'
+      - 'compose/**'
       - '.github/workflows/infrastructure.yml'
       - 'mise.toml'
 
