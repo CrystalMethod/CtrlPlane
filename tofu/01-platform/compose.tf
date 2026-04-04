@@ -68,7 +68,7 @@ data "external" "infisical_bootstrap" {
 }
 
 resource "dokploy_compose" "infisical_staging" {
-  name           = "${var.INFISICAL_APP_NAME}-dev"
+  name           = var.INFISICAL_APP_NAME
   environment_id = dokploy_environment.secrets_staging.id
   source_type    = "github"
   github_id      = "gLmK4q6_J6qZnJ1CtamVs"
