@@ -12,6 +12,15 @@ resource "dokploy_environment" "secrets_production" {
   }
 }
 
+resource "dokploy_environment" "secrets_staging" {
+  project_id = dokploy_project.secrets.id
+  name       = "staging"
+
+  lifecycle {
+    ignore_changes = [project_id]
+  }
+}
+
 resource "dokploy_project" "services" {
   name        = "services"
   description = ""

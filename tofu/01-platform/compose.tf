@@ -69,7 +69,7 @@ data "external" "infisical_bootstrap" {
 
 resource "dokploy_compose" "infisical_staging" {
   name           = "${var.INFISICAL_APP_NAME}-dev"
-  environment_id = dokploy_environment.secrets_production.id
+  environment_id = dokploy_environment.secrets_staging.id
   source_type    = "github"
   github_id      = "gLmK4q6_J6qZnJ1CtamVs"
   owner          = "CrystalMethod"
@@ -78,6 +78,7 @@ resource "dokploy_compose" "infisical_staging" {
   compose_path   = "compose/platform/infisical/docker-compose.yml"
   auto_deploy    = true
   env            = local.infisical_dev_env
+  watch_paths    = ["compose/platform/infisical/**"]
 }
 
 resource "dokploy_domain" "infisical_staging" {
@@ -101,6 +102,7 @@ resource "dokploy_compose" "infisical_production" {
   compose_path   = "compose/platform/infisical/docker-compose.yml"
   auto_deploy    = true
   env            = local.infisical_env
+  watch_paths    = ["compose/platform/infisical/**"]
 }
 
 resource "dokploy_domain" "infisical_production" {
