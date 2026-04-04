@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "schedule": ["before 6am on monday"],
+  "packageRules": [
+    {
+      "matchManagers": ["docker-compose"],
+      "groupName": "docker images",
+      "groupSlug": "docker"
+    },
+    {
+      "matchManagers": ["terraform"],
+      "groupName": "terraform providers",
+      "groupSlug": "terraform"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "groupSlug": "github-actions"
+    },
+    {
+      "matchManagers": ["mise"],
+      "groupName": "mise tools",
+      "groupSlug": "mise"
+    }
+  ]
+}
