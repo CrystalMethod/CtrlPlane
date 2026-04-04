@@ -22,6 +22,11 @@ variable "CLOUDFLARE_R2_SECRET_ACCESS_KEY" {
   sensitive = true
 }
 
+# Global domain configuration
+variable "BASE_DOMAIN" {
+  type = string
+}
+
 # Infisical compose environment variables
 variable "INFISICAL_ENCRYPTION_KEY" {
   type      = string
@@ -38,7 +43,7 @@ variable "INFISICAL_DB_PASSWORD" {
   sensitive = true
 }
 
-variable "INFISICAL_DOMAIN" {
+variable "INFISICAL_APP_NAME" {
   type = string
 }
 

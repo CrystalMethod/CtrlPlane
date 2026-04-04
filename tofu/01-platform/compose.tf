@@ -1,6 +1,6 @@
 locals {
-  infisical_site_url     = "https://${var.INFISICAL_DOMAIN}"
-  infisical_dev_site_url = "https://infisical-dev.smb-tec.com"
+  infisical_site_url     = "https://${var.INFISICAL_APP_NAME}.${var.BASE_DOMAIN}"
+  infisical_dev_site_url = "https://${var.INFISICAL_APP_NAME}-dev.${var.BASE_DOMAIN}"
 
   infisical_env = join("\n", [
     "ENCRYPTION_KEY=${var.INFISICAL_ENCRYPTION_KEY}",
@@ -23,7 +23,7 @@ locals {
     "TELEMETRY_ENABLED=false",
     "INVITE_ONLY_SIGNUP=true",
     "ALLOW_INTERNAL_IP_CONNECTIONS=false",
-    "CORS_ALLOWED_ORIGINS=[\"https://${var.INFISICAL_DOMAIN}\"]",
+    "CORS_ALLOWED_ORIGINS=[\"https://${var.INFISICAL_APP_NAME}.${var.BASE_DOMAIN}\"]",
     "HOST=0.0.0.0",
     "JWT_AUTH_LIFETIME=15m",
     "JWT_REFRESH_LIFETIME=24h",
@@ -50,7 +50,7 @@ locals {
     "TELEMETRY_ENABLED=false",
     "INVITE_ONLY_SIGNUP=true",
     "ALLOW_INTERNAL_IP_CONNECTIONS=false",
-    "CORS_ALLOWED_ORIGINS=[\"https://infisical-dev.smb-tec.com\"]",
+    "CORS_ALLOWED_ORIGINS=[\"https://${var.INFISICAL_APP_NAME}-dev.${var.BASE_DOMAIN}\"]",
     "HOST=0.0.0.0",
     "JWT_AUTH_LIFETIME=15m",
     "JWT_REFRESH_LIFETIME=24h",
@@ -68,7 +68,7 @@ data "external" "infisical_bootstrap" {
 }
 
 resource "dokploy_compose" "infisical_staging" {
-  name           = "infisical-dev"
+  name           = "${var.INFISICAL_APP_NAME}-dev"
   environment_id = dokploy_environment.secrets_production.id
   source_type    = "github"
   github_id      = "gLmK4q6_J6qZnJ1CtamVs"
@@ -83,7 +83,7 @@ resource "dokploy_compose" "infisical_staging" {
 resource "dokploy_domain" "infisical_staging" {
   compose_id       = dokploy_compose.infisical_staging.id
   service_name     = "backend"
-  host             = "infisical-dev.smb-tec.com"
+  host             = "${var.INFISICAL_APP_NAME}-dev.${var.BASE_DOMAIN}"
   https            = false
   certificate_type = "none"
   port             = 8080
@@ -91,7 +91,7 @@ resource "dokploy_domain" "infisical_staging" {
 }
 
 resource "dokploy_compose" "infisical_production" {
-  name           = "infisical"
+  name           = var.INFISICAL_APP_NAME
   environment_id = dokploy_environment.secrets_production.id
   source_type    = "github"
   github_id      = "gLmK4q6_J6qZnJ1CtamVs"
@@ -106,7 +106,7 @@ resource "dokploy_compose" "infisical_production" {
 resource "dokploy_domain" "infisical_production" {
   compose_id       = dokploy_compose.infisical_production.id
   service_name     = "backend"
-  host             = var.INFISICAL_DOMAIN
+  host             = "${var.INFISICAL_APP_NAME}.${var.BASE_DOMAIN}"
   https            = false
   certificate_type = "none"
   port             = 8080
