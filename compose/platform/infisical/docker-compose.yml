@@ -26,7 +26,7 @@ services:
       - SMTP_FROM_NAME=${SMTP_FROM_NAME}
       - TELEMETRY_ENABLED=false
     volumes:
-      - ../files/infisical-data:/app/data
+      - infisical-data:/app/data
 
   postgres:
     image: postgres:14-alpine
@@ -36,7 +36,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=infisical
     volumes:
-      - ../files/postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U infisical"]
       interval: 5s
@@ -46,9 +46,15 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: redis-server --save ""
+    volumes:
+      - redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+volumes:
+  infisical-data:
+  postgres-data:
+  redis-data:
