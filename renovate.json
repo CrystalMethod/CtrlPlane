@@ -3,7 +3,7 @@
   "extends": ["config:recommended"],
   "dependencyDashboard": true,
   "labels": ["dependencies"],
-  "schedule": ["at any time"],
+  "schedule": ["before 6am on monday"],
   "packageRules": [
     {
       "matchManagers": ["docker-compose"],
