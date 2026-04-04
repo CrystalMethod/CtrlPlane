@@ -57,7 +57,7 @@ jobs:
             --label "promote-to-prod" \
             --body "## Changes being promoted
 
-          $(git log origin/prod..origin/main --oneline --no-merges | sed 's/^/- /')
+          [View full comparison](https://github.com/${{ github.repository }}/compare/prod...main)
 
           ## Checklist
           - [ ] Staging has been tested at https://infisical-dev.smb-tec.com
@@ -71,7 +71,7 @@ jobs:
           gh pr edit ${{ steps.existing.outputs.pr_number }} \
             --body "## Changes being promoted
 
-          $(git log origin/prod..origin/main --oneline --no-merges | sed 's/^/- /')
+          [View full comparison](https://github.com/${{ github.repository }}/compare/prod...main)
 
           ## Checklist
           - [ ] Staging has been tested at https://infisical-dev.smb-tec.com
