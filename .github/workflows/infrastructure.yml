@@ -54,8 +54,14 @@ jobs:
       - name: Install tools
         run: mise install
 
+      - name: Tofu Init (Infra)
+        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
+
       - name: Tofu Validate (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra validate
+
+      - name: Tofu Init (Platform)
+        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
 
       - name: Tofu Validate (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform validate
