@@ -6,6 +6,7 @@ on:
     paths:
       - 'tofu/**'
       - 'compose/**'
+      - 'scripts/**'
       - '.github/workflows/infrastructure.yml'
       - 'mise.toml'
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - 'tofu/**'
       - 'compose/**'
+      - 'scripts/**'
       - '.github/workflows/infrastructure.yml'
       - 'mise.toml'
 
