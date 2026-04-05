@@ -57,13 +57,39 @@ locals {
   ])
 }
 
-data "external" "infisical_bootstrap" {
-  program = ["bash", "${path.module}/../../scripts/infisical-bootstrap.sh"]
-  query = {
-    domain       = local.infisical_site_url
-    email        = var.INFISICAL_ADMIN_EMAIL
-    password     = var.INFISICAL_ADMIN_PASSWORD
-    organization = var.INFISICAL_ADMIN_ORGANIZATION
+resource "null_resource" "infisical_bootstrap_staging" {
+  depends_on = [dokploy_compose.infisical_staging]
+
+  triggers = {
+    domain = local.infisical_dev_site_url
+  }
+
+  provisioner "local-exec" {
+    command = join(" ", [
+      "bash", "${path.module}/../../scripts/infisical-bootstrap.sh",
+      "--domain", local.infisical_dev_site_url,
+      "--email", var.INFISICAL_ADMIN_EMAIL,
+      "--password", var.INFISICAL_ADMIN_PASSWORD,
+      "--org", var.INFISICAL_ADMIN_ORGANIZATION,
+    ])
+  }
+}
+
+resource "null_resource" "infisical_bootstrap_production" {
+  depends_on = [dokploy_compose.infisical_production]
+
+  triggers = {
+    domain = local.infisical_site_url
+  }
+
+  provisioner "local-exec" {
+    command = join(" ", [
+      "bash", "${path.module}/../../scripts/infisical-bootstrap.sh",
+      "--domain", local.infisical_site_url,
+      "--email", var.INFISICAL_ADMIN_EMAIL,
+      "--password", var.INFISICAL_ADMIN_PASSWORD,
+      "--org", var.INFISICAL_ADMIN_ORGANIZATION,
+    ])
   }
 }
 
