@@ -68,18 +68,18 @@ data "external" "infisical_bootstrap" {
 }
 
 resource "dokploy_compose" "infisical_staging" {
-  name           = var.INFISICAL_APP_NAME
-  environment_id = dokploy_environment.secrets_staging.id
-  source_type    = "github"
-  github_id      = "gLmK4q6_J6qZnJ1CtamVs"
-  owner          = "CrystalMethod"
-  repository     = "CtrlPlane"
-  branch         = "main"
-  compose_path   = "compose/platform/infisical/docker-compose.yml"
-  auto_deploy    = true
+  name             = var.INFISICAL_APP_NAME
+  environment_id   = dokploy_environment.secrets_staging.id
+  source_type      = "github"
+  github_id        = "gLmK4q6_J6qZnJ1CtamVs"
+  owner            = "CrystalMethod"
+  repository       = "CtrlPlane"
+  branch           = "main"
+  compose_path     = "compose/platform/infisical/docker-compose.yml"
+  auto_deploy      = true
   deploy_on_create = true
-  env            = local.infisical_dev_env
-  watch_paths    = ["compose/platform/infisical/**"]
+  env              = local.infisical_dev_env
+  watch_paths      = ["compose/platform/infisical/**"]
 }
 
 resource "dokploy_domain" "infisical_staging" {
@@ -93,18 +93,18 @@ resource "dokploy_domain" "infisical_staging" {
 }
 
 resource "dokploy_compose" "infisical_production" {
-  name           = var.INFISICAL_APP_NAME
-  environment_id = dokploy_environment.secrets_production.id
-  source_type    = "github"
-  github_id      = "gLmK4q6_J6qZnJ1CtamVs"
-  owner          = "CrystalMethod"
-  repository     = "CtrlPlane"
-  branch         = "prod"
-  compose_path   = "compose/platform/infisical/docker-compose.yml"
-  auto_deploy    = true
+  name             = var.INFISICAL_APP_NAME
+  environment_id   = dokploy_environment.secrets_production.id
+  source_type      = "github"
+  github_id        = "gLmK4q6_J6qZnJ1CtamVs"
+  owner            = "CrystalMethod"
+  repository       = "CtrlPlane"
+  branch           = "prod"
+  compose_path     = "compose/platform/infisical/docker-compose.yml"
+  auto_deploy      = true
   deploy_on_create = true
-  env            = local.infisical_env
-  watch_paths    = ["compose/platform/infisical/**"]
+  env              = local.infisical_env
+  watch_paths      = ["compose/platform/infisical/**"]
 }
 
 resource "dokploy_domain" "infisical_production" {
