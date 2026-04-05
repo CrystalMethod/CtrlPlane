@@ -77,6 +77,7 @@ resource "dokploy_compose" "infisical_staging" {
   branch         = "main"
   compose_path   = "compose/platform/infisical/docker-compose.yml"
   auto_deploy    = true
+  deploy_on_create = true
   env            = local.infisical_dev_env
   watch_paths    = ["compose/platform/infisical/**"]
 }
@@ -101,6 +102,7 @@ resource "dokploy_compose" "infisical_production" {
   branch         = "prod"
   compose_path   = "compose/platform/infisical/docker-compose.yml"
   auto_deploy    = true
+  deploy_on_create = true
   env            = local.infisical_env
   watch_paths    = ["compose/platform/infisical/**"]
 }
