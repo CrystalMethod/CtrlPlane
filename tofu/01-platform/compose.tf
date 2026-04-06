@@ -126,6 +126,24 @@ resource "null_resource" "infisical_bootstrap_staging" {
   }
 }
 
+resource "dokploy_backup" "infisical_staging_postgres" {
+  destination_id    = dokploy_destination.backups.id
+  backup_type       = "compose"
+  compose_id        = dokploy_compose.infisical_staging.id
+  service_name      = "postgres"
+  database_type     = "postgres"
+  schedule          = "0 2 * * *"
+  enabled           = true
+  prefix            = "infisical-staging-postgres"
+  database          = "infisical"
+  keep_latest_count = 7
+  metadata = {
+    postgres = {
+      database_user = "infisical"
+    }
+  }
+}
+
 # ── Production ───────────────────────────────────────────────────────────
 
 resource "dokploy_compose" "infisical_production" {
@@ -192,5 +210,23 @@ resource "null_resource" "infisical_bootstrap_production" {
       "--password", var.INFISICAL_ADMIN_PASSWORD,
       "--org", var.INFISICAL_ADMIN_ORGANIZATION,
     ])
+  }
+}
+
+resource "dokploy_backup" "infisical_production_postgres" {
+  destination_id    = dokploy_destination.backups.id
+  backup_type       = "compose"
+  compose_id        = dokploy_compose.infisical_production.id
+  service_name      = "postgres"
+  database_type     = "postgres"
+  schedule          = "0 2 * * *"
+  enabled           = true
+  prefix            = "infisical-production-postgres"
+  database          = "infisical"
+  keep_latest_count = 7
+  metadata = {
+    postgres = {
+      database_user = "infisical"
+    }
   }
 }
