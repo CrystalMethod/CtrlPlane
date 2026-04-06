@@ -58,6 +58,18 @@ jobs:
       - name: Install tools
         run: mise install
 
+      - name: Checkout patched dokploy provider
+        uses: actions/checkout@v6
+        with:
+          repository: CrystalMethod/terraform-provider-dokploy
+          ref: fix/backup-metadata-nested-v2
+          path: terraform-provider-dokploy
+
+      - name: Build patched provider
+        run: |
+          cd terraform-provider-dokploy
+          go build -o $(dirname $(which tofu))/terraform-provider-dokploy .
+
       - name: Tofu Init (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
 
@@ -84,6 +96,18 @@ jobs:
 
       - name: Install tools
         run: mise install
+
+      - name: Checkout patched dokploy provider
+        uses: actions/checkout@v6
+        with:
+          repository: CrystalMethod/terraform-provider-dokploy
+          ref: fix/backup-metadata-nested-v2
+          path: terraform-provider-dokploy
+
+      - name: Build patched provider
+        run: |
+          cd terraform-provider-dokploy
+          go build -o $(dirname $(which tofu))/terraform-provider-dokploy .
 
       - name: Tofu Init (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
