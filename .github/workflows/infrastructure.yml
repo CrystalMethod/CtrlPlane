@@ -68,16 +68,18 @@ jobs:
       - name: Build patched provider
         run: |
           cd terraform-provider-dokploy
-          go build -o $(dirname $(which tofu))/terraform-provider-dokploy .
+          PROVIDER_DIR="$HOME/.terraform.d/plugins/registry.terraform.io/ahmedali6/dokploy/0.0.1+dev/linux_amd64"
+          mkdir -p "$PROVIDER_DIR"
+          go build -o "$PROVIDER_DIR/terraform-provider-dokploy_v0.0.1" .
 
       - name: Tofu Init (Infra)
-        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
+        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
 
       - name: Tofu Validate (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra validate
 
       - name: Tofu Init (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
+        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
 
       - name: Tofu Validate (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform validate
@@ -107,10 +109,12 @@ jobs:
       - name: Build patched provider
         run: |
           cd terraform-provider-dokploy
-          go build -o $(dirname $(which tofu))/terraform-provider-dokploy .
+          PROVIDER_DIR="$HOME/.terraform.d/plugins/registry.terraform.io/ahmedali6/dokploy/0.0.1+dev/linux_amd64"
+          mkdir -p "$PROVIDER_DIR"
+          go build -o "$PROVIDER_DIR/terraform-provider-dokploy_v0.0.1" .
 
       - name: Tofu Init (Infra)
-        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
+        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
 
       - name: Tofu Plan (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra plan -input=false -out=tfplan
@@ -123,7 +127,7 @@ jobs:
           retention-days: 5
 
       - name: Tofu Init (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
+        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
 
       - name: Tofu Plan (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform plan -input=false -out=tfplan
