@@ -72,14 +72,26 @@ jobs:
           mkdir -p "$PROVIDER_DIR"
           go build -o "$PROVIDER_DIR/terraform-provider-dokploy_v0.0.1" .
 
+      - name: Configure tofu dev overrides
+        run: |
+          cat > /tmp/tofu-dev.tfrc <<'EOF'
+          provider_installation {
+            dev_overrides {
+              "registry.terraform.io/ahmedali6/dokploy" = "/home/runner/.terraform.d/plugins/registry.terraform.io/ahmedali6/dokploy/0.0.1+dev/linux_amd64"
+            }
+            direct {}
+          }
+          EOF
+          echo "TF_CLI_CONFIG_FILE=/tmp/tofu-dev.tfrc" >> "$GITHUB_ENV"
+
       - name: Tofu Init (Infra)
-        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
+        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
 
       - name: Tofu Validate (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra validate
 
       - name: Tofu Init (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
+        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
 
       - name: Tofu Validate (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform validate
@@ -113,8 +125,20 @@ jobs:
           mkdir -p "$PROVIDER_DIR"
           go build -o "$PROVIDER_DIR/terraform-provider-dokploy_v0.0.1" .
 
+      - name: Configure tofu dev overrides
+        run: |
+          cat > /tmp/tofu-dev.tfrc <<'EOF'
+          provider_installation {
+            dev_overrides {
+              "registry.terraform.io/ahmedali6/dokploy" = "/home/runner/.terraform.d/plugins/registry.terraform.io/ahmedali6/dokploy/0.0.1+dev/linux_amd64"
+            }
+            direct {}
+          }
+          EOF
+          echo "TF_CLI_CONFIG_FILE=/tmp/tofu-dev.tfrc" >> "$GITHUB_ENV"
+
       - name: Tofu Init (Infra)
-        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
+        run: fnox exec -- tofu -chdir=tofu/00-infra init -input=false
 
       - name: Tofu Plan (Infra)
         run: fnox exec -- tofu -chdir=tofu/00-infra plan -input=false -out=tfplan
@@ -127,7 +151,7 @@ jobs:
           retention-days: 5
 
       - name: Tofu Init (Platform)
-        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false -plugin-dir="$HOME/.terraform.d/plugins"
+        run: fnox exec -- tofu -chdir=tofu/01-platform init -input=false
 
       - name: Tofu Plan (Platform)
         run: fnox exec -- tofu -chdir=tofu/01-platform plan -input=false -out=tfplan
