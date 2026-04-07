@@ -84,32 +84,18 @@ resource "dokploy_domain" "infisical_staging" {
   path             = "/"
 }
 
-resource "null_resource" "infisical_deploy_staging" {
-  depends_on = [dokploy_domain.infisical_staging]
-
-  triggers = {
-    compose_id    = dokploy_compose.infisical_staging.id
-    refresh_token = dokploy_compose.infisical_staging.refresh_token
-    branch        = dokploy_compose.infisical_staging.branch
-  }
-
-  provisioner "local-exec" {
-    environment = {
-      DOKPLOY_API_KEY = var.DOKPLOY_API_KEY
-    }
-    command = <<-EOT
-      sleep 10
-      curl -sf -k -X POST "${var.DOKPLOY_HOST}/deploy/compose/${self.triggers.refresh_token}" \
-        -H "Content-Type: application/json" \
-        -H "x-github-event: push" \
-        -H "x-api-key: $DOKPLOY_API_KEY" \
-        -d '{"commits": [{"modified": ["${dokploy_compose.infisical_staging.compose_path}"]}], "ref": "refs/heads/${self.triggers.branch}"}'
-    EOT
-  }
+module "infisical_deploy_staging" {
+  source          = "../modules/dokploy-deploy-trigger"
+  compose_id      = dokploy_compose.infisical_staging.id
+  refresh_token   = dokploy_compose.infisical_staging.refresh_token
+  branch          = dokploy_compose.infisical_staging.branch
+  compose_path    = dokploy_compose.infisical_staging.compose_path
+  dokploy_host    = var.DOKPLOY_HOST
+  dokploy_api_key = var.DOKPLOY_API_KEY
 }
 
 resource "null_resource" "infisical_bootstrap_staging" {
-  depends_on = [null_resource.infisical_deploy_staging]
+  depends_on = [module.infisical_deploy_staging]
 
   triggers = {
     domain = local.infisical_dev_site_url
@@ -123,6 +109,24 @@ resource "null_resource" "infisical_bootstrap_staging" {
       "--password", var.INFISICAL_ADMIN_PASSWORD,
       "--org", var.INFISICAL_ADMIN_ORGANIZATION,
     ])
+  }
+}
+
+resource "dokploy_backup" "infisical_staging_postgres" {
+  destination_id    = dokploy_destination.backups.id
+  backup_type       = "compose"
+  compose_id        = dokploy_compose.infisical_staging.id
+  service_name      = "postgres"
+  database_type     = "postgres"
+  schedule          = "0 2 * * *"
+  enabled           = true
+  prefix            = "infisical-staging-postgres"
+  database          = "infisical"
+  keep_latest_count = 7
+  metadata = {
+    postgres = {
+      database_user = "infisical"
+    }
   }
 }
 
@@ -153,32 +157,18 @@ resource "dokploy_domain" "infisical_production" {
   path             = "/"
 }
 
-resource "null_resource" "infisical_deploy_production" {
-  depends_on = [dokploy_domain.infisical_production]
-
-  triggers = {
-    compose_id    = dokploy_compose.infisical_production.id
-    refresh_token = dokploy_compose.infisical_production.refresh_token
-    branch        = dokploy_compose.infisical_production.branch
-  }
-
-  provisioner "local-exec" {
-    environment = {
-      DOKPLOY_API_KEY = var.DOKPLOY_API_KEY
-    }
-    command = <<-EOT
-      sleep 10
-      curl -sf -k -X POST "${var.DOKPLOY_HOST}/deploy/compose/${self.triggers.refresh_token}" \
-        -H "Content-Type: application/json" \
-        -H "x-github-event: push" \
-        -H "x-api-key: $DOKPLOY_API_KEY" \
-        -d '{"commits": [{"modified": ["${dokploy_compose.infisical_production.compose_path}"]}], "ref": "refs/heads/${self.triggers.branch}"}'
-    EOT
-  }
+module "infisical_deploy_production" {
+  source          = "../modules/dokploy-deploy-trigger"
+  compose_id      = dokploy_compose.infisical_production.id
+  refresh_token   = dokploy_compose.infisical_production.refresh_token
+  branch          = dokploy_compose.infisical_production.branch
+  compose_path    = dokploy_compose.infisical_production.compose_path
+  dokploy_host    = var.DOKPLOY_HOST
+  dokploy_api_key = var.DOKPLOY_API_KEY
 }
 
 resource "null_resource" "infisical_bootstrap_production" {
-  depends_on = [null_resource.infisical_deploy_production]
+  depends_on = [module.infisical_deploy_production]
 
   triggers = {
     domain = local.infisical_site_url
@@ -192,5 +182,23 @@ resource "null_resource" "infisical_bootstrap_production" {
       "--password", var.INFISICAL_ADMIN_PASSWORD,
       "--org", var.INFISICAL_ADMIN_ORGANIZATION,
     ])
+  }
+}
+
+resource "dokploy_backup" "infisical_production_postgres" {
+  destination_id    = dokploy_destination.backups.id
+  backup_type       = "compose"
+  compose_id        = dokploy_compose.infisical_production.id
+  service_name      = "postgres"
+  database_type     = "postgres"
+  schedule          = "0 2 * * *"
+  enabled           = true
+  prefix            = "infisical-production-postgres"
+  database          = "infisical"
+  keep_latest_count = 7
+  metadata = {
+    postgres = {
+      database_user = "infisical"
+    }
   }
 }

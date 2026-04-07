@@ -1,0 +1,6 @@
+provider_installation {
+  dev_overrides {
+    "registry.terraform.io/ahmedali6/dokploy" = "/home/runner/.local/share/terraform.d/plugins/registry.terraform.io/ahmedali6/dokploy/0.0.1+dev/linux_amd64"
+  }
+  direct {}
+}

@@ -1,4 +1,5 @@
 [tools]
+go = "latest"
 "npm:wrangler" = "4.38.0"
 fnox = "latest"
 infisical = "latest"
