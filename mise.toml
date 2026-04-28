@@ -1,6 +1,6 @@
 [tools]
 go = "latest"
-"npm:wrangler" = "4.38.0"
+"npm:wrangler" = "4.86.0"
 fnox = "latest"
 infisical = "latest"
 lefthook = "latest"
