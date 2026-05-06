@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: infisical/infisical:v0.159.8
+    image: infisical/infisical:v0.159.26
     restart: unless-stopped
     depends_on:
       postgres:
